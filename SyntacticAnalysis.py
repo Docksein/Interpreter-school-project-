@@ -8,7 +8,7 @@ class Parser:
         AssignOperatorToken: 1,
         OrOperatorToken: 2,
         AndOperatorToken: 3,
-        SumOperatorToken: 10, SubOperatorToken: 10,
+        SumOperatorToken: 10, SubOperatorToken: 10, IncrementOpToken: 10, DecrementOpToken: 10,
         MulOperatorToken: 20, DivOperatorToken: 20
     }
 
@@ -23,7 +23,7 @@ class Parser:
             if self.__tokenizer.is_eof() is False:
                 if isinstance(self.__tokenizer.peek(), BinaryOperatorToken):
                     root.add_expression(self.parse_binary_operator(expr))
-                    self.skip(ExprEndToken)
+                    self.skip(ExprEndToken)               
                 else:
                     root.add_expression(expr)
                     self.skip(ExprEndToken)
@@ -54,9 +54,12 @@ class Parser:
             node = self.parse_print_keyword()
         if isinstance(self.__tokenizer.peek(), TernaryLeft):
             node = self.parse_ternary()
-
+        if isinstance(self.__tokenizer.peek(), WhileKeywordToken):
+            node = self.parse_while()
         if isinstance(self.__tokenizer.peek(), BinaryOperatorToken):
             return self.parse_binary_operator(node)
+        if isinstance(self.__tokenizer.peek(), IncrementOperatorToken):
+            return self.parse_increment_operator(node)
         else:
             return node
 
@@ -85,7 +88,7 @@ class Parser:
         return root
 
     def skip(self, token_type):
-        if isinstance(self.__tokenizer.peek(), token_type):
+        if isinstance(self.__tokenizer.peek(), token_type):           
             self.__tokenizer.next()
         else:
             raise TypeError
@@ -135,6 +138,7 @@ class Parser:
         while self.__tokenizer.is_eof() is False and isinstance(self.__tokenizer.peek(), ExprEndToken) is False:
             root.add_expression(self.parse_expression())
             self.skip(ExprEndToken)
+            
 
         return root
 
@@ -143,9 +147,29 @@ class Parser:
         true_ternary = self.parse_ternary_true()
         false_ternary = self.parse_ternary_false()
 
-        root = ASTNodeTernStatement(condition, true_ternary, false_ternary)
+        root = ASTNodeTernStatement(condition, true_ternary, false_ternary)       
+        return root
+    
+    def parse_while(self):
+        self.__tokenizer.next()
+        condition = self.parse_condition()
+        while_block = self.parse_block();
+
+        root = ASTNodeWhileLoop(condition, while_block)
 
         return root
+
+    def parse_increment_operator(self, left_operand: ASTNode):
+        operator = self.__tokenizer.next()
+
+        if isinstance(operator, IncrementOpToken):
+            node = ASTNodeOpIncr(left_operand)
+        elif isinstance(operator, DecrementOpToken):
+            node = ASTNodeOpDecr(left_operand)        
+        else:
+            raise TypeError
+        return node
+
 
     def parse_binary_operator(self, left_operand: ASTNode):
         operator = self.__tokenizer.next()
@@ -177,7 +201,7 @@ class Parser:
         elif isinstance(operator, LesserThanToken):
             node = ASTNodeOpLess(left_operand, right_operand)
         elif isinstance(operator, LesserOrEqualToken):
-            node = ASTNodeOpLesOrEqual(left_operand, right_operand)
+            node = ASTNodeOpLesOrEqual(left_operand, right_operand)             
 
         else:
             raise TypeError
@@ -191,7 +215,7 @@ class Parser:
         else:
             return node
 
-    def parse_unary_operator(self):
+    def parse_unary_operator(self):            
         if isinstance(self.__tokenizer.peek(), NotOperatorToken):
             return ASTNodeOpNot(self.parse_expression())
         else:
