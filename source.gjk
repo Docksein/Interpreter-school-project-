@@ -1,4 +1,9 @@
-if ( 12 > 1 ) then {
-    print 8;
+[ 5 == 5 ]? print 1 : print 2;
+
+if ( 5 >= 1 ) then{
+    print 4;
 }
+
+
+
 
