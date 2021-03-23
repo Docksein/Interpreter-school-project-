@@ -2,13 +2,13 @@ from abc import ABC
 from typing import TypeVar, Generic
 
 
-class ASTNode(ABC):
+class ASTNode(ABC):   
     """
     Abstraktní třída představující uzel syntaktického stromu
 
     Tato třída slouží jako společný předek všech konkrétních
     druhů uzlů.  Díky tomuto společnému předkovi můžeme ke
-    všem konkrétním vrcholům přistupova stejně a máme
+    všem konkrétním vrcholům přistupovat stejně a máme
     zajištěno, že budou mít požadované metody.
     """
 
@@ -57,7 +57,7 @@ class ASTNodeReadKeyword(ASTNode):
     def __init__(self, ex: ASTNodeIdent):
         super().__init__()
         self.__expr = ex
-
+        
     def evaluate(self, symbol_table: dict):
         data = input("> ")
         try:
@@ -148,24 +148,22 @@ class ASTNodeCondStatement(ASTNode):
             if self.__else is not None:
                 self.__else.evaluate(symbol_table)
 
-
 class ASTNodeTernStatement(ASTNode):
-
-    def __init__(self, condition: ASTNode, then_ternary: ASTNode, else_ternary: ASTNode):
+    def __init__(self, condition: ASTNode, true_ternary: ASTNode, false_ternary: ASTNode):
         super().__init__()
         self.__condition = condition
-        if isinstance(then_ternary, ASTNodeProg) is False:
+        if isinstance(true_ternary, ASTNodeProg) is False:
             raise TypeError
-        self.__then_ternary = then_ternary
-        if isinstance(else_ternary, ASTNodeProg) is False:
+        self.__true_ternary = true_ternary
+        if isinstance(false_ternary, ASTNodeProg) is False:
             raise TypeError
-        self.__else_ternary = else_ternary
-
+        self.__false_ternary = false_ternary
+    
     def evaluate(self, symbol_table: dict):
         if self.__condition.evaluate(symbol_table) is True:
-            self.__then_ternary.evaluate(symbol_table)
+            self.__true_ternary.evaluate(symbol_table)
         else:
-            self.__else_ternary.evaluate(symbol_table)
+            self.__false_ternary.evaluate(symbol_table)
 
 
 #####################################################
@@ -247,44 +245,32 @@ class ASTNodeOpOr(ASTNodeBinaryOp):
     def __init__(self, left_child: ASTNode, right_child: ASTNode):
         super().__init__(left_child, right_child, lambda x, y: x or y)
 
-
-class ASTNodeOpGrThan(ASTNodeBinaryOp):
-
-    def __init__(self, left_child: ASTNode, right_child: ASTNode):
-        super().__init__(left_child, right_child, lambda x, y: x > y)
-
-
-class ASTNodeOpGrOrEqual(ASTNodeBinaryOp):
-
-    def __init__(self, left_child: ASTNode, right_child: ASTNode):
-        super().__init__(left_child, right_child, lambda x, y: x >= y)
-
-
-class ASTNodeOpEqual(ASTNodeBinaryOp):
-
-    def __init__(self, left_child: ASTNode, right_child: ASTNode):
-        super().__init__(left_child, right_child, lambda x, y: x == y)
-
-
-class ASTNodeOpNotEq(ASTNodeBinaryOp):
-
-    def __init__(self, left_child: ASTNode, right_child: ASTNode):
-        super().__init__(left_child, right_child, lambda x, y: x != y)
-
-
 class ASTNodeOpLess(ASTNodeBinaryOp):
-
     def __init__(self, left_child: ASTNode, right_child: ASTNode):
         super().__init__(left_child, right_child, lambda x, y: x < y)
 
+class ASTNodeOpGreat(ASTNodeBinaryOp):
+    def __init__(self, left_child: ASTNode, right_child: ASTNode):
+        super().__init__(left_child, right_child, lambda x, y: x > y)
 
-class ASTNodeOpLesOrEqual(ASTNodeBinaryOp):
-
+class ASTNodeOpLessEq(ASTNodeBinaryOp):
     def __init__(self, left_child: ASTNode, right_child: ASTNode):
         super().__init__(left_child, right_child, lambda x, y: x <= y)
 
+class ASTNodeOpGreatEq(ASTNodeBinaryOp):
+    def __init__(self, left_child: ASTNode, right_child: ASTNode):
+        super().__init__(left_child, right_child, lambda x, y: x >= y)
+
+class ASTNodeOpEqual(ASTNodeBinaryOp):
+    def __init__(self, left_child: ASTNode, right_child: ASTNode):
+        super().__init__(left_child, right_child, lambda x, y: x == y)
+
+class ASTNodeOpUnequal(ASTNodeBinaryOp):
+    def __init__(self, left_child: ASTNode, right_child: ASTNode):
+        super().__init__(left_child, right_child, lambda x, y: x != y)
 
 class ASTNodeOpNot(ASTNodeUnaryOp):
-
     def __init__(self, child: ASTNode):
         super().__init__(child, lambda x: not x)
+
+

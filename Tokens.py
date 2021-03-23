@@ -187,7 +187,7 @@ class OrOperatorToken(BinaryOperatorToken):
         return "<OP_OR>"
 
 
-class AssignOperatorToken(BinaryOperatorToken):
+class AssignOperatorToken(BinaryOperatorToken):  
 
     def __init__(self):
         super().__init__()
@@ -203,60 +203,6 @@ class NotOperatorToken(UnaryOperatorToken):
 
     def __str__(self):
         return "<OP_NOT>"
-
-
-class GreaterThanToken(BinaryOperatorToken):
-
-    def __init__(self):
-        super().__init__()
-
-    def __str__(self):
-        return "<OP_GREATER>"
-
-
-class GreaterOrEqualToken(BinaryOperatorToken):
-
-    def __init__(self):
-        super().__init__()
-
-    def __str__(self):
-        return "<OP_GREATEREQUAL>"
-
-
-class EqualToken(BinaryOperatorToken):
-
-    def __init__(self):
-        super().__init__()
-
-    def __str__(self):
-        return "<OP_EQUAL>"
-
-
-class NotEqualToken(BinaryOperatorToken):
-
-    def __init__(self):
-        super().__init__()
-
-    def __str__(self):
-        return "<OP_NOTEQUAL>"
-
-
-class LesserThanToken(BinaryOperatorToken):
-
-    def __init__(self):
-        super().__init__()
-
-    def __str__(self):
-        return "<OP_LESSER>"
-
-
-class LesserOrEqualToken(BinaryOperatorToken):
-
-    def __init__(self):
-        super().__init__()
-
-    def __str__(self):
-        return "<OP_LESSEREQUAL>"
 
 
 class IdentifierToken(Token):
@@ -316,29 +262,67 @@ class ExprEndToken(Token):
     def __str__(self):
         return "<SEMICOLON>"
 
-
-class TernaryLeft(Token):
-
+class LesserThanToken(BinaryOperatorToken):   
     def __init__(self):
         super().__init__()
+    
+    def __str__(self):      
+        return "<OP_LESSER_THAN>"
 
+class LesserOrEqualToken(BinaryOperatorToken):
+    def __init__(self):
+        super().__init__()
+    
+    def __str__(self):
+        return "<OP_LESSER_OR_EQUAL_THAN>"
+
+class GreaterThanToken(BinaryOperatorToken): 
+    def __init__(self):
+        super().__init__()
+    
+    def __str__(self):
+        return "<OP_GREATER_THAN>"
+
+class GreaterOrEqualToken(BinaryOperatorToken):
+    def __init__(self):
+        super().__init__()
+    
+    def __str__(self):
+        return "<OP_GREATER_OR_EQUAL_THAN>"
+
+
+class EqualToken(BinaryOperatorToken):
+    def __init__(self):
+        super().__init__()
+    
+    def __str__(self):
+        return "<OP_EQUAL>"
+
+
+class UnequalToken(BinaryOperatorToken):
+    def __init__(self):
+        super().__init__()
+    
+    def __str__(self):
+        return "<OP_UNEQUAL>"
+
+class LeftTernaryToken:
+    def __init__(self):
+        super().__init__()
+    
     def __str__(self):
         return "<LTERN>"
 
-
-class TernaryRight(Token):
-
+class RightTernaryToken:
     def __init__(self):
         super().__init__()
-
+    
     def __str__(self):
         return "<RTERN>"
 
-
-class TernaryDivider(Token):
-
+class TernaryDividerToken:
     def __init__(self):
         super().__init__()
-
+    
     def __str__(self):
         return "<DIVTERN>"

@@ -55,11 +55,12 @@ class InputStream:
         char = self.peek()
         self.__pos += 1
 
-        if char == '>' or char == '<' or char == '!' or char == '=':
+        if char == '<' or char == '=' or char == '>' or char == '!':
             nextChar = self.peek()
             if nextChar == '=':
                 char = char + nextChar
                 self.__pos += 1
+                           
 
         if char == '\n':
             self.__line += 1

@@ -20,3 +20,4 @@ symbol_table = dict()
 
 # Interpretujeme vrácený syntaktický strom.
 ast.evaluate(symbol_table)
+   

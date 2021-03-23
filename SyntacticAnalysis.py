@@ -4,6 +4,7 @@ from AST import *
 
 
 class Parser:
+
     __precedence = {
         AssignOperatorToken: 1,
         OrOperatorToken: 2,
@@ -31,7 +32,7 @@ class Parser:
                 root.add_expression(expr)
 
         return root
-
+    
     def parse_expression(self):
         node = None
         if isinstance(self.__tokenizer.peek(), BoolConstantToken):
@@ -52,14 +53,14 @@ class Parser:
             node = self.parse_read_keyword()
         if isinstance(self.__tokenizer.peek(), PrintKeywordToken):
             node = self.parse_print_keyword()
-        if isinstance(self.__tokenizer.peek(), TernaryLeft):
-            node = self.parse_ternary()
 
         if isinstance(self.__tokenizer.peek(), BinaryOperatorToken):
             return self.parse_binary_operator(node)
+        if isinstance(self.__tokenizer.peek(), LeftTernaryToken):
+            return self.parse_ternary()
         else:
             return node
-
+    
     def parse_boolean_constant(self):
         return ASTNodeBoolConst(self.__tokenizer.next().get_value())
 
@@ -84,7 +85,7 @@ class Parser:
 
         return root
 
-    def skip(self, token_type):
+    def skip(self, token_type):        
         if isinstance(self.__tokenizer.peek(), token_type):
             self.__tokenizer.next()
         else:
@@ -95,6 +96,42 @@ class Parser:
         expr = self.parse_expression()
         self.skip(RightParToken)
         return expr
+    
+    def parse_ternary_condition(self):
+        self.skip(LeftTernaryToken)
+        expr = self.parse_expression()
+        self.skip(RightTernaryToken)
+        return expr
+
+    def parse_ternary(self):                        
+        condition = self.parse_ternary_condition()
+        true_ternary = self.parse_ternary_true()
+        self.skip(TernaryDividerToken)
+        false_ternary = self.parse_ternary_false()           
+        root = ASTNodeTernStatement(condition, true_ternary, false_ternary)
+
+        return root
+        
+
+    def parse_ternary_true(self):
+        self.skip(AndOperatorToken)
+        root = ASTNodeProg()
+        while self.__tokenizer.is_eof() is False and isinstance(self.__tokenizer.peek(), TernaryDividerToken) is False:
+            root.add_expression(self.parse_expression())
+            
+        if self.__tokenizer.is_eof():
+            raise EOFError
+        print(root)
+        return root
+
+    def parse_ternary_false(self):    
+
+        root = ASTNodeProg()
+        while self.__tokenizer.is_eof() is False and isinstance(self.__tokenizer.peek(), ExprEndToken) is False:
+            root.add_expression(self.parse_expression())
+            self.skip(ExprEndToken)
+
+        return root
 
     def parse_block(self):
         self.skip(BlockStartToken)
@@ -103,7 +140,7 @@ class Parser:
         while self.__tokenizer.is_eof() is False \
                 and isinstance(self.__tokenizer.peek(), BlockEndToken) is False:
             root.add_expression(self.parse_expression())
-            self.skip(ExprEndToken)
+           
 
         if self.__tokenizer.is_eof():
             raise EOFError
@@ -111,45 +148,9 @@ class Parser:
         self.skip(BlockEndToken)
         return root
 
-    def parse_ternary_condition(self):
-        self.skip(TernaryLeft)
-        expr = self.parse_expression()
-        self.skip(TernaryRight)
-        return expr
-
-    def parse_ternary_true(self):
-        self.skip(AndOperatorToken)
-
-        root = ASTNodeProg()
-        while self.__tokenizer.is_eof() is False and isinstance(self.__tokenizer.peek(), TernaryDivider) is False:
-            root.add_expression(self.parse_expression())
-
-        if self.__tokenizer.is_eof():
-            raise EOFError
-
-        return root
-
-    def parse_ternary_false(self):
-        self.skip(TernaryDivider)
-        root = ASTNodeProg()
-        while self.__tokenizer.is_eof() is False and isinstance(self.__tokenizer.peek(), ExprEndToken) is False:
-            root.add_expression(self.parse_expression())
-            self.skip(ExprEndToken)
-
-        return root
-
-    def parse_ternary(self):
-        condition = self.parse_ternary_condition()
-        true_ternary = self.parse_ternary_true()
-        false_ternary = self.parse_ternary_false()
-
-        root = ASTNodeTernStatement(condition, true_ternary, false_ternary)
-
-        return root
-
     def parse_binary_operator(self, left_operand: ASTNode):
-        operator = self.__tokenizer.next()
-        right_operand = self.parse_expression()
+        operator = self.__tokenizer.next()          
+        right_operand = self.parse_expression()  
 
         node = None
         if isinstance(operator, SumOperatorToken):
@@ -166,19 +167,18 @@ class Parser:
             node = ASTNodeOpAnd(left_operand, right_operand)
         elif isinstance(operator, OrOperatorToken):
             node = ASTNodeOpOr(left_operand, right_operand)
+        elif isinstance(operator, LesserThanToken):                    
+            node = ASTNodeOpLess(left_operand, right_operand)
         elif isinstance(operator, GreaterThanToken):
-            node = ASTNodeOpGrThan(left_operand, right_operand)
+            node = ASTNodeOpGreat(left_operand, right_operand)
+        elif isinstance(operator, LesserOrEqualToken):           
+            node = ASTNodeOpLessEq(left_operand, right_operand)
         elif isinstance(operator, GreaterOrEqualToken):
-            node = ASTNodeOpGrOrEqual(left_operand, right_operand)
+            node = ASTNodeOpGreatEq(left_operand, right_operand)
         elif isinstance(operator, EqualToken):
             node = ASTNodeOpEqual(left_operand, right_operand)
-        elif isinstance(operator, NotEqualToken):
-            node = ASTNodeOpNotEq(left_operand, right_operand)
-        elif isinstance(operator, LesserThanToken):
-            node = ASTNodeOpLess(left_operand, right_operand)
-        elif isinstance(operator, LesserOrEqualToken):
-            node = ASTNodeOpLesOrEqual(left_operand, right_operand)
-
+        elif isinstance(operator, UnequalToken):
+            node = ASTNodeOpUnequal(left_operand, right_operand)        
         else:
             raise TypeError
 

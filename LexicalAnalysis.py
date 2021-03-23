@@ -31,24 +31,24 @@ class Tokenizer:
         '?': AndOperatorToken,
         '|': OrOperatorToken,
         '!': NotOperatorToken,
+        '<': LesserThanToken,
+        '<=': LesserOrEqualToken,
         '>': GreaterThanToken,
         '>=': GreaterOrEqualToken,
         '==': EqualToken,
-        '!=': NotEqualToken,
-        '<': LesserThanToken,
-        '<=': LesserOrEqualToken
+        '!=': UnequalToken   
     }
 
     """Pomocná konstanta obsahující všech dostupné oddělovače a jim odpovídající tokeny."""
     __delimiters = {
+        '[': LeftTernaryToken,
+        ']': RightTernaryToken,
         '(': LeftParToken,
         ')': RightParToken,
         '{': BlockStartToken,
         '}': BlockEndToken,
-        ';': ExprEndToken,
-        '[': TernaryLeft,
-        ']': TernaryRight,
-        ':': TernaryDivider
+        ':': TernaryDividerToken,
+        ';': ExprEndToken
     }
 
     def __init__(self, istream: InputStream):
@@ -75,6 +75,7 @@ class Tokenizer:
     def next(self) -> Optional[Token]:
         """
         Vrátí aktuální token a posune se na další v pořadí
+
         :return: Aktuálně zpracovávaný token.
         """
         token = self.peek()
@@ -147,7 +148,7 @@ class Tokenizer:
         else:
             return IdentifierToken(name)
 
-    def __read_operator(self) -> OperatorToken:
+    def __read_operator(self) -> OperatorToken:        
         return Tokenizer.__operators.get(self.__is.next())()
 
     def __read_delimiter(self) -> Token:
